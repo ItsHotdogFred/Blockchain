@@ -25,8 +25,8 @@ const (
 
 var (
 	nodeAddress     string
-	mineAddress    string
-	KnownNodes      = []string{"158.178.141.60:3000", "localhost:3000"}
+	mineAddress     string
+	KnownNodes      = []string{"localhost:3000", "158.178.141.60:3000"}
 	blocksInTransit = [][]byte{}
 	memoryPool      = make(map[string]blockchain.Transaction)
 )
@@ -176,7 +176,7 @@ func SendData(addr string, data []byte) {
 
 		KnownNodes = updatedNodes
 
-		return 
+		return
 	}
 
 	defer conn.Close()
@@ -338,7 +338,7 @@ func MineTx(chain *blockchain.Blockchain) {
 	for id := range memoryPool {
 		fmt.Printf("tx: %s\n", memoryPool[id].ID)
 		tx := memoryPool[id]
-		if  chain.VerifyTransaction(&tx) {
+		if chain.VerifyTransaction(&tx) {
 			txs = append(txs, &tx)
 		}
 	}
@@ -434,7 +434,7 @@ func HandleConnection(conn net.Conn, chain *blockchain.Blockchain) {
 	case "tx":
 		HandleTx(req, chain)
 	case "version":
-		HandleVersion(req,chain)
+		HandleVersion(req, chain)
 	default:
 		fmt.Println("Unknown command")
 	}

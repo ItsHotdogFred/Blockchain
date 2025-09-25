@@ -158,7 +158,10 @@ func (cli *CommandLine) send(from, to string, amount int, nodeID string, mineNow
 		block := chain.MineBlock(txs)
 		UTXOSet.Update(block)
 	} else {
-		network.SendTx(network.KnownNodes[0], tx)
+		// Send transaction to all known nodes for decentralization
+		for _, node := range network.KnownNodes {
+			network.SendTx(node, tx)
+		}
 		fmt.Println("send tx")
 	}
 

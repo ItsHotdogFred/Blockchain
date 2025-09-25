@@ -319,13 +319,14 @@ func HandleTx(request []byte, chain *blockchain.Blockchain) {
 
 	fmt.Printf(" %s, %d", nodeAddress, len(memoryPool))
 
-	if nodeAddress == KnownNodes[0] {
-		for _, node := range KnownNodes {
-			if node != nodeAddress && node != payload.AddrFrom {
-				SendInv(node, "tx", [][]byte{tx.ID})
-			}
+	// Broadcast transaction to all known nodes except the sender
+	for _, node := range KnownNodes {
+		if node != nodeAddress && node != payload.AddrFrom {
+			SendInv(node, "tx", [][]byte{tx.ID})
 		}
-	} else {
+	}
+
+	if len(mineAddress) > 0 {
 		if len(memoryPool) > 2 && len(mineAddress) > 0 {
 			MineTx(chain)
 		}
@@ -469,8 +470,15 @@ func StartServer(nodeID, minerAddress string) {
 	defer chain.Database.Close()
 	go CloseDB(chain)
 
-	if nodeAddress != KnownNodes[0] {
-		SendVersion(KnownNodes[0], chain)
+	// Connect to a random known node for decentralization
+	// Initialize decentralized peer discovery
+	peers := InitializeDecentralizedNetwork()
+	if len(peers) > 0 {
+		// Connect to a random healthy peer
+		randomPeer := GetRandomSeedNode()
+		if nodeAddress != randomPeer {
+			SendVersion(randomPeer, chain)
+		}
 	}
 	for {
 		conn, err := ln.Accept()

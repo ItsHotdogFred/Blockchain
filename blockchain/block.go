@@ -30,7 +30,7 @@ func (b *Block) HashTransactions() []byte {
 func CreateBlock(txs []*Transaction, prevHash []byte, height int) *Block {
 	block := &Block{time.Now().Unix(), []byte{}, txs, prevHash, 0, height}
 	pow := NewProof(block)
-	nonce, hash, _ := pow.Run()
+	nonce, hash := pow.Run()
 
 	block.Hash = hash[:]
 	block.Nonce = nonce

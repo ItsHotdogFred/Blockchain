@@ -8,7 +8,6 @@ import (
 	"log"
 	"math"
 	"math/big"
-	"time"
 )
 
 const Difficulty = 12
@@ -61,13 +60,11 @@ func ToHex(num int64) []byte {
 	return buff.Bytes()
 }
 
-func (pow *ProofOfWork) Run() (int, []byte, time.Duration) {
+func (pow *ProofOfWork) Run() (int, []byte) {
 	var intHash big.Int
 	var hash [32]byte
 
 	nonce := 0
-
-	start := time.Now()
 
 	for nonce < math.MaxInt64 {
 		data := pow.InitData(nonce)
@@ -84,8 +81,5 @@ func (pow *ProofOfWork) Run() (int, []byte, time.Duration) {
 	}
 	fmt.Println()
 
-	duration := time.Since(start)
-	fmt.Printf("Proof of work completed in: %s\n", duration)
-
-	return nonce, hash[:], duration
+	return nonce, hash[:]
 }

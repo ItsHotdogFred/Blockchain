@@ -14,7 +14,7 @@ var (
 )
 
 type UTXOSet struct {
-	Blockchain *Blockchain
+	Blockchain *BlockChain
 }
 
 func (u UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[string][]int) {

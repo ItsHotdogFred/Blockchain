@@ -26,10 +26,22 @@ const (
 var (
 	nodeAddress     string
 	mineAddress     string
-	KnownNodes      = []string{"localhost:3000", "158.178.141.60:3000"}
+	// Central node should be set via environment variable for flexibility
+	KnownNodes      = []string{}
 	blocksInTransit = [][]byte{}
 	memoryPool      = make(map[string]blockchain.Transaction)
 )
+
+func init() {
+	// Initialize KnownNodes from environment variable or use default
+	centralNode := os.Getenv("CENTRAL_NODE_IP")
+	if centralNode != "" {
+		KnownNodes = append(KnownNodes, fmt.Sprintf("%s:3000", centralNode))
+	} else {
+		// Default to localhost for development
+		KnownNodes = append(KnownNodes, "localhost:3000")
+	}
+}
 
 type Addr struct {
 	AddrList []string
@@ -138,7 +150,7 @@ func SendTx(addr string, tnx *blockchain.Transaction) {
 	SendData(addr, request)
 }
 
-func SendVersion(addr string, chain *blockchain.Blockchain) {
+func SendVersion(addr string, chain *blockchain.BlockChain) {
 	bestHeight := chain.GetBestHeight()
 	payload := GobEncode(Version{version, bestHeight, nodeAddress})
 
@@ -203,7 +215,7 @@ func HandleAddr(request []byte) {
 	RequestBlocks()
 }
 
-func HandleBlock(request []byte, chain *blockchain.Blockchain) {
+func HandleBlock(request []byte, chain *blockchain.BlockChain) {
 	var buff bytes.Buffer
 	var payload Block
 
@@ -233,7 +245,7 @@ func HandleBlock(request []byte, chain *blockchain.Blockchain) {
 	}
 }
 
-func HandleGetBlocks(request []byte, chain *blockchain.Blockchain) {
+func HandleGetBlocks(request []byte, chain *blockchain.BlockChain) {
 	var buff bytes.Buffer
 	var payload GetBlocks
 
@@ -248,7 +260,7 @@ func HandleGetBlocks(request []byte, chain *blockchain.Blockchain) {
 	SendInv(payload.AddrFrom, "block", blocks)
 }
 
-func HandleGetData(request []byte, chain *blockchain.Blockchain) {
+func HandleGetData(request []byte, chain *blockchain.BlockChain) {
 	var buff bytes.Buffer
 	var payload GetData
 
@@ -276,7 +288,7 @@ func HandleGetData(request []byte, chain *blockchain.Blockchain) {
 	}
 }
 
-func HandleVersion(request []byte, chain *blockchain.Blockchain) {
+func HandleVersion(request []byte, chain *blockchain.BlockChain) {
 	var buff bytes.Buffer
 	var payload Version
 
@@ -302,7 +314,7 @@ func HandleVersion(request []byte, chain *blockchain.Blockchain) {
 	}
 }
 
-func HandleTx(request []byte, chain *blockchain.Blockchain) {
+func HandleTx(request []byte, chain *blockchain.BlockChain) {
 	var buff bytes.Buffer
 	var payload Tx
 
@@ -326,13 +338,13 @@ func HandleTx(request []byte, chain *blockchain.Blockchain) {
 			}
 		}
 	} else {
-		if len(memoryPool) > 2 && len(mineAddress) > 0 {
+		if len(memoryPool) >= 2 && len(mineAddress) > 0 {
 			MineTx(chain)
 		}
 	}
 }
 
-func MineTx(chain *blockchain.Blockchain) {
+func MineTx(chain *blockchain.BlockChain) {
 	var txs []*blockchain.Transaction
 
 	for id := range memoryPool {
@@ -373,7 +385,7 @@ func MineTx(chain *blockchain.Blockchain) {
 	}
 }
 
-func HandleInv(request []byte, chain *blockchain.Blockchain) {
+func HandleInv(request []byte, chain *blockchain.BlockChain) {
 	var buff bytes.Buffer
 	var payload Inv
 
@@ -410,7 +422,7 @@ func HandleInv(request []byte, chain *blockchain.Blockchain) {
 	}
 }
 
-func HandleConnection(conn net.Conn, chain *blockchain.Blockchain) {
+func HandleConnection(conn net.Conn, chain *blockchain.BlockChain) {
 	req, err := io.ReadAll(conn)
 	defer conn.Close()
 
@@ -457,15 +469,25 @@ func RequestBlocks() {
 }
 
 func StartServer(nodeID, minerAddress string) {
-	nodeAddress = fmt.Sprintf("localhost:%s", nodeID)
+	// Use external IP for node identity if available, otherwise use localhost
+	externalIP := os.Getenv("NODE_EXTERNAL_IP")
+	if externalIP != "" {
+		nodeAddress = fmt.Sprintf("%s:%s", externalIP, nodeID)
+	} else {
+		// Fallback to localhost for development
+		nodeAddress = fmt.Sprintf("localhost:%s", nodeID)
+	}
 	mineAddress = minerAddress
-	ln, err := net.Listen(protocol, nodeAddress)
+
+	// Always listen on all interfaces (0.0.0.0) to accept external connections
+	listenAddr := fmt.Sprintf("0.0.0.0:%s", nodeID)
+	ln, err := net.Listen(protocol, listenAddr)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer ln.Close()
 
-	chain := blockchain.ContinueBlockchain(nodeID)
+	chain := blockchain.ContinueBlockChain(nodeID)
 	defer chain.Database.Close()
 	go CloseDB(chain)
 
@@ -482,7 +504,7 @@ func StartServer(nodeID, minerAddress string) {
 
 }
 
-func CloseDB(chain *blockchain.Blockchain) {
+func CloseDB(chain *blockchain.BlockChain) {
 	d := death.NewDeath(syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	d.WaitForDeathWithFunc(func() {

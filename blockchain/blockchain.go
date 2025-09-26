@@ -20,7 +20,7 @@ const (
 	genesisData = "First Transaction from Genesis"
 )
 
-type Blockchain struct {
+type BlockChain struct {
 	LastHash []byte
 	Database *badger.DB
 }
@@ -33,7 +33,7 @@ func DBexists(path string) bool {
 	return true
 }
 
-func InitBlockchain(address string, nodeId string) *Blockchain {
+func InitBlockChain(address, nodeId string) *BlockChain {
 	path := fmt.Sprintf(dbPath, nodeId)
 
 	if DBexists(path) {
@@ -63,11 +63,11 @@ func InitBlockchain(address string, nodeId string) *Blockchain {
 
 	Handle(err)
 
-	blockchain := Blockchain{lastHash, db}
+	blockchain := BlockChain{lastHash, db}
 	return &blockchain
 }
 
-func ContinueBlockchain(nodeId string) *Blockchain {
+func ContinueBlockChain(nodeId string) *BlockChain {
 	path := fmt.Sprintf(dbPath, nodeId)
 	if !DBexists(path) {
 		fmt.Println("No existing blockchain found, create one!")
@@ -94,12 +94,12 @@ func ContinueBlockchain(nodeId string) *Blockchain {
 	})
 	Handle(err)
 
-	chain := Blockchain{lastHash, db}
+	chain := BlockChain{lastHash, db}
 
 	return &chain
 }
 
-func (chain *Blockchain) GetBlock(blockHash []byte) (Block, error) {
+func (chain *BlockChain) GetBlock(blockHash []byte) (Block, error) {
 	var block Block
 
 	err := chain.Database.View(func(txn *badger.Txn) error {
@@ -124,7 +124,7 @@ func (chain *Blockchain) GetBlock(blockHash []byte) (Block, error) {
 	return block, nil
 }
 
-func (chain *Blockchain) GetBlockHashes() [][]byte {
+func (chain *BlockChain) GetBlockHashes() [][]byte {
 	var blocks [][]byte
 
 	iter := chain.Iterator()
@@ -142,7 +142,7 @@ func (chain *Blockchain) GetBlockHashes() [][]byte {
 	return blocks
 }
 
-func (chain *Blockchain) GetBestHeight() int {
+func (chain *BlockChain) GetBestHeight() int {
 	var lastBlock Block
 
 	err := chain.Database.View(func(txn *badger.Txn) error {
@@ -173,7 +173,7 @@ func (chain *Blockchain) GetBestHeight() int {
 	return lastBlock.Height
 }
 
-func (chain *Blockchain) MineBlock(transactions []*Transaction) *Block {
+func (chain *BlockChain) MineBlock(transactions []*Transaction) *Block {
 	var lastHash []byte
 	var lastHeight int
 
@@ -225,7 +225,7 @@ func (chain *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	return newBlock
 }
 
-func (chain *Blockchain) AddBlock(block *Block) {
+func (chain *BlockChain) AddBlock(block *Block) {
 	err := chain.Database.Update(func(txn *badger.Txn) error {
 		if _, err := txn.Get(block.Hash); err == nil {
 			return nil
@@ -266,7 +266,7 @@ func (chain *Blockchain) AddBlock(block *Block) {
 	Handle(err)
 }
 
-func (chain *Blockchain) FindUTXO() map[string]TxOutputs {
+func (chain *BlockChain) FindUTXO() map[string]TxOutputs {
 	UTXO := make(map[string]TxOutputs)
 	spentTXOs := make(map[string][]int)
 
@@ -305,7 +305,7 @@ func (chain *Blockchain) FindUTXO() map[string]TxOutputs {
 	return UTXO
 }
 
-func (bc *Blockchain) FindTransaction(ID []byte) (Transaction, error) {
+func (bc *BlockChain) FindTransaction(ID []byte) (Transaction, error) {
 	iter := bc.Iterator()
 
 	for {
@@ -326,7 +326,7 @@ func (bc *Blockchain) FindTransaction(ID []byte) (Transaction, error) {
 
 }
 
-func (bc *Blockchain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
+func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Inputs {
@@ -338,7 +338,7 @@ func (bc *Blockchain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey)
 	tx.Sign(privKey, prevTXs)
 }
 
-func (bc *Blockchain) VerifyTransaction(tx *Transaction) bool {
+func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
 
 	if tx.IsCoinbase() {
 		return true

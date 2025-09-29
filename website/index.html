@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Casino</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero is-primary">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    <i class="fas fa-dice mr-3"></i>
+                    Blockchain Casino
+                </h1>
+                <h2 class="subtitle">
+                    Decentralized gambling powered by blockchain.
+                    Tutorial used to build blockchain: <a href="https://www.youtube.com/watch?v=mYlHT9bB6OE&list=PLJbE2Yu2zumC5QE39TQHBLYJDB2gfFE5Q" class="has-text-white">YouTube Series</a>
+                </h2>
+                <div class="notification is-warning is-light">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    If you encounter errors, try refreshing the page
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <!-- Wallet Section -->
+                <div class="column is-full">
+                    <div class="card">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                <i class="fas fa-wallet mr-2"></i>
+                                Wallet Management
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div class="content">
+                                <div class="field is-grouped">
+                                    <div class="control">
+                                        <button class="button is-success" id="create-wallet-btn">
+                                            <i class="fas fa-plus mr-2"></i>
+                                            Create Wallet
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="notification is-info" id="create-wallet-address" style="display: none;">
+                                    <strong>Address:</strong> <span id="address-text"></span>
+                                </div>
+
+                                <div class="notification" id="create-wallet-message" style="display: none;">
+                                    <span id="message-text"></span>
+                                </div>
+
+                                <div class="notification is-primary" id="wallet-balance" style="display: none;">
+                                    <strong>Balance:</strong> <span id="balance-text">0</span> coins
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games Grid -->
+            <div class="columns">
+                <!-- Coinflip Game -->
+                <div class="column is-one-third">
+                    <div class="card">
+                        <header class="card-header has-background-info">
+                            <p class="card-header-title has-text-white">
+                                <i class="fas fa-coins mr-2"></i>
+                                Coinflip
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div class="content">
+                                <div class="tags has-addons">
+                                    <span class="tag is-primary">50% Win Rate</span>
+                                    <span class="tag is-success">2x Payout</span>
+                                </div>
+
+                                <div class="field">
+                                    <label class="label">Bet Amount</label>
+                                    <div class="control">
+                                        <input class="input" type="number" id="coinflip-bet-amount" placeholder="Enter bet amount" min="1">
+                                    </div>
+                                </div>
+
+                                <div class="notification is-light" id="coinflip-message" style="display: none;">
+                                    <span id="coinflip-message-text"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <footer class="card-footer">
+                            <button class="button is-info is-fullwidth" id="coinflip-gamble-btn">
+                                <i class="fas fa-coins mr-2"></i>
+                                Flip Coin
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+
+                <!-- Dice Roll Game -->
+                <div class="column is-one-third">
+                    <div class="card">
+                        <header class="card-header has-background-warning">
+                            <p class="card-header-title has-text-white">
+                                <i class="fas fa-dice mr-2"></i>
+                                Dice Roll
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div class="content">
+                                <div class="tags has-addons">
+                                    <span class="tag is-primary">16.7% Win Rate</span>
+                                    <span class="tag is-success">3x Payout</span>
+                                </div>
+                                <p class="help">Roll a 6 to win!</p>
+
+                                <div class="field">
+                                    <label class="label">Bet Amount</label>
+                                    <div class="control">
+                                        <input class="input" type="number" id="diceroll-bet-amount" placeholder="Enter bet amount" min="1">
+                                    </div>
+                                </div>
+
+                                <div class="notification is-light" id="diceroll-message" style="display: none;">
+                                    <span id="diceroll-message-text"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <footer class="card-footer">
+                            <button class="button is-warning is-fullwidth" id="diceroll-gamble-btn">
+                                <i class="fas fa-dice mr-2"></i>
+                                Roll Dice
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+
+                <!-- Number Guess Game -->
+                <div class="column is-one-third">
+                    <div class="card">
+                        <header class="card-header has-background-danger">
+                            <p class="card-header-title has-text-white">
+                                <i class="fas fa-bullseye mr-2"></i>
+                                Number Range
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div class="content">
+                                <div class="tags has-addons">
+                                    <span class="tag is-primary">11% Win Rate</span>
+                                    <span class="tag is-success">5x Payout</span>
+                                </div>
+                                <p class="help">Guess within ±5 of server number</p>
+
+                                <div class="field">
+                                    <label class="label">Bet Amount</label>
+                                    <div class="control">
+                                        <input class="input" type="number" id="NumberGuess-bet-amount" placeholder="Enter bet amount" min="1">
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <label class="label">Your Guess (1-100)</label>
+                                    <div class="control">
+                                        <input class="input" type="number" id="NumberGuess-bet-guess" placeholder="Enter guess" min="1" max="100">
+                                    </div>
+                                </div>
+
+                                <div class="notification is-light" id="NumberGuess-message" style="display: none;">
+                                    <span id="NumberGuess-message-text"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <footer class="card-footer">
+                            <button class="button is-danger is-fullwidth" id="NumberGuess-gamble-btn">
+                                <i class="fas fa-bullseye mr-2"></i>
+                                Make Guess
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="content has-text-centered">
+                <p>
+                    <strong>Blockchain Casino</strong> - Powered by blockchain technology
+                </p>
+                <p>
+                    <i class="fas fa-code mr-1"></i>
+                    Built with Go, Bulma CSS, Time
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -337,53 +337,9 @@ func HandleTx(request []byte, chain *blockchain.BlockChain) {
 				SendInv(node, "tx", [][]byte{tx.ID})
 			}
 		}
-	} else {
-		if len(memoryPool) >= 2 && len(mineAddress) > 0 {
-			MineTx(chain)
-		}
 	}
 }
 
-func MineTx(chain *blockchain.BlockChain) {
-	var txs []*blockchain.Transaction
-
-	for id := range memoryPool {
-		fmt.Printf("tx: %s\n", memoryPool[id].ID)
-		tx := memoryPool[id]
-		if chain.VerifyTransaction(&tx) {
-			txs = append(txs, &tx)
-		}
-	}
-
-	if len(txs) == 0 {
-		fmt.Println("All Transactions are invalid")
-		return
-	}
-
-	cbTx := blockchain.CoinbaseTx(mineAddress, "")
-	txs = append(txs, cbTx)
-
-	newBlock := chain.MineBlock(txs)
-	UTXOSet := blockchain.UTXOSet{Blockchain: chain}
-	UTXOSet.Reindex()
-
-	fmt.Println("New Block mined")
-
-	for _, tx := range txs {
-		txID := hex.EncodeToString(tx.ID)
-		delete(memoryPool, txID)
-	}
-
-	for _, node := range KnownNodes {
-		if node != nodeAddress {
-			SendInv(node, "block", [][]byte{newBlock.Hash})
-		}
-	}
-
-	if len(memoryPool) > 0 {
-		MineTx(chain)
-	}
-}
 
 func HandleInv(request []byte, chain *blockchain.BlockChain) {
 	var buff bytes.Buffer
@@ -468,7 +424,7 @@ func RequestBlocks() {
 	}
 }
 
-func StartServer(nodeID, minerAddress string) {
+func StartServer(nodeID string, chain *blockchain.BlockChain) {
 	// Use external IP for node identity if available, otherwise use localhost
 	externalIP := os.Getenv("NODE_EXTERNAL_IP")
 	if externalIP != "" {
@@ -477,7 +433,7 @@ func StartServer(nodeID, minerAddress string) {
 		// Fallback to localhost for development
 		nodeAddress = fmt.Sprintf("localhost:%s", nodeID)
 	}
-	mineAddress = minerAddress
+	mineAddress = ""
 
 	// Always listen on all interfaces (0.0.0.0) to accept external connections
 	listenAddr := fmt.Sprintf("0.0.0.0:%s", nodeID)
@@ -487,8 +443,6 @@ func StartServer(nodeID, minerAddress string) {
 	}
 	defer ln.Close()
 
-	chain := blockchain.ContinueBlockChain(nodeID)
-	defer chain.Database.Close()
 	go CloseDB(chain)
 
 	if nodeAddress != KnownNodes[0] {

@@ -1,18 +1,16 @@
 # Blockchain Casino
 
-A fully functional blockchain implementation with built-in gambling games, featuring decentralized transactions, proof-of-work consensus, and a web-based casino interface.
-
+A fully functional blockchain implementation with built-in gambling games.
 ![Blockchain Casino](https://img.shields.io/badge/Go-1.25.1-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
 ## 🎰 Features
 
 ### Core Blockchain
-- **Proof-of-Work Consensus**: Secure mining with adjustable difficulty
+- **Proof-of-Work**: Secure mining with adjustable difficulty
 - **Cryptographic Wallets**: ECDSA-based key management
 - **UTXO Model**: Efficient transaction processing
 - **Merkle Tree Integrity**: Tamper-proof transaction verification
-- **P2P Network**: Decentralized node communication
 - **RESTful API**: HTTP endpoints for blockchain operations
 
 ### Gambling Games
@@ -21,11 +19,8 @@ A fully functional blockchain implementation with built-in gambling games, featu
 - **Number Range**: Guess within ±5 range to win 5x your bet
 
 ### Web Interface
-- **Real-time Balance Tracking**: Live wallet balance updates
-- **Interactive Wallet Management**: Create and manage multiple wallets
 - **Transaction History**: View all blockchain transactions
 - **Game Dashboard**: Integrated gambling interface
-- **Responsive Design**: Works on desktop and mobile
 
 ## 🏗️ Architecture
 
@@ -143,29 +138,12 @@ The blockchain exposes the following HTTP endpoints:
 - `POST /coinflip` - Play coin flip game
 - `POST /diceroll` - Play dice roll game
 - `POST /numberrange` - Play number range game
-
-## ⛏️ Mining
-
-The blockchain uses a proof-of-work consensus mechanism:
-
-- **Difficulty Adjustment**: Automatically adjusts based on network hash rate
-- **Block Rewards**: Miners receive rewards for validating transactions
-- **Transaction Fees**: Small fees for processing transactions
-- **Merkle Root**: Efficient transaction verification
-
+- 
 ### Starting a Mining Node
 ```bash
 export NODE_ID="3000"
 ./main startnode -miner YOUR_WALLET_ADDRESS
 ```
-
-## 🌐 Network Configuration
-
-### Node Communication
-- **Protocol**: TCP
-- **Default Port**: 3000 (P2P), 6969 (API)
-- **Discovery**: Nodes can discover each other automatically
-- **Syncing**: Automatic blockchain synchronization
 
 ### Multi-Node Setup
 ```bash
@@ -213,80 +191,5 @@ coinflip -from FROM -amount AMOUNT
 diceroll -from FROM -amount AMOUNT
 numberrange -from FROM -amount AMOUNT -guess NUMBER
 ```
-
-## 🔒 Security Features
-
-### Cryptography
-- **ECDSA**: Elliptic Curve Digital Signature Algorithm
-- **SHA-256**: Secure hashing for blocks and transactions
-- **Merkle Trees**: Tamper-proof transaction verification
-- **Digital Signatures**: Transaction authentication
-
-### Consensus
-- **Proof-of-Work**: Prevents double-spending and ensures consensus
-- **Longest Chain Rule**: Resolves conflicts automatically
-- **Difficulty Adjustment**: Maintains consistent block times
-
-## 🛠️ Development
-
-### Project Structure
-- **Modular Design**: Clean separation of concerns
-- **BadgerDB**: High-performance key-value database
-- **Gorilla Mux**: HTTP routing for API endpoints
-- **Base58**: Address encoding
-
-### Adding New Features
-1. **Core Logic**: Add blockchain functions in `/blockchain/`
-2. **CLI Commands**: Extend `/cli/cli.go`
-3. **API Endpoints**: Modify `/network/network.go`
-4. **Web Interface**: Update `/website/` files
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Database Errors**
-```bash
-# Clear blockchain data
-rm -rf tmp/
-```
-
-**Network Issues**
-```bash
-# Check if ports are available
-netstat -tulpn | grep :3000
-netstat -tulpn | grep :6969
-```
-
-**Web Interface Issues**
-- Ensure the blockchain server is running
-- Check browser console for errors
-- Refresh the page if connection issues occur
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Blockchain Tutorial**: Based on the excellent YouTube series by [Laurence Bradford](https://www.youtube.com/watch?v=mYlHT9bB6OE&list=PLJbE2Yu2zumC5QE39TQHBLYJDB2gfFE5Q)
-- **Go Libraries**: Built with amazing open-source libraries
-- **Bulma CSS**: Beautiful UI framework for the web interface
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📞 Contact
-
-Project Link: [https://github.com/ItsHotdogFred/blockchain](https://github.com/ItsHotdogFred/blockchain)
-
----
 
 ⚠️ **Disclaimer**: This project is for educational purposes only. The gambling features are simulated and should not be used for real gambling. Please gamble responsibly.

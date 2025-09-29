@@ -1,4 +1,91 @@
 
+async function fetchBlockchainData() {
+    try {
+        const response = await fetch('http://localhost:6969/blockchain?limit=50');
+        if (!response.ok) {
+            throw new Error('Failed to fetch blockchain data');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching blockchain:', error);
+        return null;
+    }
+}
+
+function displayRealBlockchainBlocks() {
+    fetchBlockchainData().then(blockchainData => {
+        if (!blockchainData || !blockchainData.blocks) return;
+
+        const container = document.getElementById('blockchain-container');
+        if (!container) return;
+
+        // Remove initial notification if it exists
+        const initialNotification = container.querySelector('.notification');
+        if (initialNotification) {
+            initialNotification.remove();
+        }
+
+        // Clear existing blocks
+        container.innerHTML = '';
+
+        // Reverse the blocks so they display oldest to newest (increasing block numbers)
+        const orderedBlocks = [...blockchainData.blocks].reverse();
+
+        // Display blocks with newest (highest number) at the top
+        orderedBlocks.forEach(block => {
+            const blockElement = document.createElement('div');
+            blockElement.className = 'block';
+
+            const timestamp = new Date(block.timestamp * 1000).toLocaleString();
+
+            blockElement.innerHTML = `
+                <div class="block-header">
+                    <div>
+                        <span class="block-game-type">Block #${block.height}</span>
+                        <span class="tag is-info ml-2">
+                            ${block.transactions.length} Transactions
+                        </span>
+                    </div>
+                    <div class="block-timestamp">
+                        ${timestamp}
+                    </div>
+                </div>
+                <div class="block-hash">
+                    <strong>Hash:</strong> ${block.hash}
+                </div>
+                <div class="block-hash">
+                    <strong>Previous:</strong> ${block.prevHash}
+                </div>
+                <div class="block-data">
+                    <strong>Nonce:</strong> ${block.nonce}<br>
+                    <strong>Transactions:</strong><br>
+                    ${block.transactions.map(tx =>
+                        `TX: ${tx.id} (${tx.inputs} inputs, ${tx.outputs} outputs)`
+                    ).join('<br>')}
+                </div>
+            `;
+
+            // Add to top so newest blocks appear first
+            container.prepend(blockElement);
+        });
+    });
+}
+
+function printBlockchainAPI(gameType, result, data) {
+    // Print to console as API response
+    console.log('=== BLOCKCHAIN TRANSACTION ===');
+    console.log(`Game: ${gameType}`);
+    console.log(`Result: ${result}`);
+    console.log(`Timestamp: ${new Date().toISOString()}`);
+    console.log(`Data:`, data);
+    console.log('=============================');
+
+    // Refresh the blockchain display to show the latest blocks
+    setTimeout(displayRealBlockchainBlocks, 1000);
+
+    return { gameType, result, data };
+}
+
 function fetchBalance(address) {
     fetch(`http://localhost:6969/balance?address=${address}`)
     .then(response => {
@@ -38,6 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         fetchBalance(savedAddress);
     }
+
+    // Display initial blockchain data
+    displayRealBlockchainBlocks();
 });
 
 document.getElementById('create-wallet-btn').onclick = function(e) {
@@ -75,6 +165,13 @@ document.getElementById('create-wallet-btn').onclick = function(e) {
             messageElement.style.display = 'block';
             messageElement.className = 'notification is-success';
         }
+
+        // Auto-run blockchain print API for wallet creation
+        printBlockchainAPI('WALLET_CREATION', 'SUCCESS', {
+            address: data.address,
+            message: data.message,
+            timestamp: new Date().toISOString()
+        });
 
         fetchBalance(data.address);
     })
@@ -132,6 +229,15 @@ document.getElementById('coinflip-gamble-btn').onclick = function(e) {
                 messageElement.className = 'notification is-info';
             }
         }
+
+        // Auto-run blockchain print API
+        printBlockchainAPI('COINFLIP', data.result, {
+            address: address,
+            amount: parseFloat(betAmount),
+            message: data.message,
+            timestamp: new Date().toISOString()
+        });
+
         fetchBalance(address);
     })
     .catch(error => {
@@ -188,6 +294,15 @@ document.getElementById('diceroll-gamble-btn').onclick = function(e) {
                 messageElement.className = 'notification is-info';
             }
         }
+
+        // Auto-run blockchain print API
+        printBlockchainAPI('DICE_ROLL', data.result, {
+            address: address,
+            amount: parseFloat(betAmount),
+            message: data.message,
+            timestamp: new Date().toISOString()
+        });
+
         fetchBalance(address);
     })
     .catch(error => {
@@ -249,6 +364,16 @@ document.getElementById('NumberGuess-gamble-btn').onclick = function(e) {
                 messageElement.className = 'notification is-info';
             }
         }
+
+        // Auto-run blockchain print API
+        printBlockchainAPI('NUMBER_GUESS', data.result, {
+            address: address,
+            amount: parseFloat(betAmount),
+            guess: parseInt(guess),
+            message: data.message,
+            timestamp: new Date().toISOString()
+        });
+
         fetchBalance(address);
     })
     .catch(error => {

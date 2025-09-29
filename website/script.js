@@ -12,7 +12,7 @@ async function fetchBlockchainData() {
     }
 }
 
-function displayRealBlockchainBlocks() {
+function displayBlockchainBlocks() {
     fetchBlockchainData().then(blockchainData => {
         if (!blockchainData || !blockchainData.blocks) return;
 
@@ -81,7 +81,7 @@ function printBlockchainAPI(gameType, result, data) {
     console.log('=============================');
 
     // Refresh the blockchain display to show the latest blocks
-    setTimeout(displayRealBlockchainBlocks, 1000);
+    setTimeout(displayBlockchainBlocks, 1000);
 
     return { gameType, result, data };
 }
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Display initial blockchain data
-    displayRealBlockchainBlocks();
+    displayBlockchainBlocks();
 });
 
 document.getElementById('create-wallet-btn').onclick = function(e) {

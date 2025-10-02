@@ -114,7 +114,6 @@ export NODE_ID="3000"
 ### Wallet Management
 - **Create Wallet**: Generate new cryptographic wallets
 - **View Balance**: Real-time balance updates
-- **Address Display**: Copy wallet addresses with one click
 
 ### Gambling Games
 - **Coin Flip**: Simple 50/50 game
@@ -122,7 +121,6 @@ export NODE_ID="3000"
 - **Number Range**: Skill-based guessing game
 
 ### Transaction Management
-- **Send Transactions**: Transfer coins between wallets
 - **View History**: Complete transaction ledger
 - **Network Status**: Real-time blockchain information
 
